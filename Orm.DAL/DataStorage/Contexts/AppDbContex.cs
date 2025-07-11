@@ -1,3 +1,4 @@
+// Orm.DAL/DataStorage/Contexts/AppDbContex.cs
 using Microsoft.EntityFrameworkCore;
 using Orm.Core.Entities;
 using Orm.DAL.Configurations;
@@ -11,15 +12,18 @@ public class AppDbContex : DbContext
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Table> Tables { get; set; }
 
+    public AppDbContex() { } // Parameteresiz constructor eklendi
+
     public AppDbContex(DbContextOptions<AppDbContex> options) : base(options)
     {
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured) // Only configure if not already configured via constructor
+        if (!optionsBuilder.IsConfigured)
         {
-            string connection="Server=localhost,1433;Database=MiniOrm;User Id=sa;Password=Hebib123!;Encrypt=False;";
+            // Bağlantı dizesi doğrudan burada yapılandırıldı
+            string connection = "Server=localhost,1433;Database=OrmMiniDb;User Id=sa;Password=Hebib123!;Encrypt=False;";
             optionsBuilder.UseSqlServer(connection);
         }
         base.OnConfiguring(optionsBuilder);
@@ -27,10 +31,10 @@ public class AppDbContex : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TableConfig).Assembly);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrderConfig).Assembly);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(MenuItemConfig).Assembly); 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrderItemConfig).Assembly);
+        modelBuilder.ApplyConfiguration(new TableConfig());
+        modelBuilder.ApplyConfiguration(new OrderConfig());
+        modelBuilder.ApplyConfiguration(new MenuItemConfig());
+        modelBuilder.ApplyConfiguration(new OrderItemConfig());
         base.OnModelCreating(modelBuilder);
     }
 }

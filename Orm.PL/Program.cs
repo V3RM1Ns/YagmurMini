@@ -1,50 +1,32 @@
-﻿
+﻿// Program.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Orm.Core.Entities;
 using Orm.BL.Dtos.MenuItemDtos;
 using Orm.BL.Dtos.OrderDtos;
 using Orm.BL.Dtos.OrderItemDtos;
 using Orm.BL.Services.Concretes;
 using Orm.BL.Services.Interfaces;
-using Orm.Core.Entities;
 using Orm.DAL.DataStorage.Contexts;
 using Orm.DAL.Repositories.Concretes;
 using Orm.DAL.Repositories.Interfaces;
 
 public class Program
 {
-    private static IServiceProvider _serviceProvider;
-
-
     public static async Task Main(string[] args)
     {
-      
-        ConfigureServices();
-        // Run the main application loop
         await RunApplication();
     }
 
-    // --- Dependency Injection Setup ---
-    private static void ConfigureServices()
-    {
-        var services = new ServiceCollection();
-        services.AddDbContext<AppDbContex>(options =>
-            options.UseSqlServer(
-                "Server=localhost,1433;Database=OrmDb;User Id=sa;Password=Hebib123!;Encrypt=False;"));
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        services.AddScoped<IMenuItemService, MenuItemService>();
-        services.AddScoped<IOrderService, OrderService>();
-
-        _serviceProvider = services.BuildServiceProvider();
-    }
-
-    // --- Main Application Loop ---
     private static async Task RunApplication()
     {
         bool exitSystem = false;
         while (!exitSystem)
         {
-            Console.Clear(); // Clear console for a clean menu display
+            Console.Clear();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("╔══════════════════════════════════════════╗");
             Console.WriteLine("║               MAIN MENU                  ║");
@@ -61,10 +43,19 @@ public class Program
             switch (choice)
             {
                 case "1":
-                    await HandleMenuItemOperations();
+                    using (var context = new AppDbContex())
+                    {
+                        var menuItemService = new MenuItemService(context);
+                        await HandleMenuItemOperations(menuItemService);
+                    }
                     break;
                 case "2":
-                    await HandleOrderOperations();
+                    using (var context = new AppDbContex())
+                    {
+                        var orderService = new OrderService(context);
+                        var menuItemServiceForOrder = new MenuItemService(context);
+                        await HandleOrderOperations(orderService, menuItemServiceForOrder);
+                    }
                     break;
                 case "0":
                     exitSystem = true;
@@ -76,25 +67,14 @@ public class Program
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Error: Invalid choice! Please enter 0, 1, or 2.");
                     Console.ResetColor();
-                    await Task.Delay(1500); // Pause for user to read error
+                    await Task.Delay(1500);
                     break;
             }
         }
     }
 
-    // --- Menu Item Operations ---
-    private static async Task HandleMenuItemOperations()
+    private static async Task HandleMenuItemOperations(IMenuItemService menuItemService)
     {
-        // Get MenuItemService instance from DI container
-        var menuItemService = _serviceProvider.GetService<IMenuItemService>();
-        if (menuItemService == null)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Error: MenuItemService not loaded. Check application configuration.");
-            Console.ResetColor();
-            await Task.Delay(2000);
-            return;
-        }
         bool backToMainMenu = false;
         while (!backToMainMenu)
         {
@@ -153,7 +133,6 @@ public class Program
 
             if (!backToMainMenu)
             {
-                // Prompt to continue only if not returning to main menu
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("\nPress any key to continue...");
                 Console.ResetColor();
@@ -162,7 +141,6 @@ public class Program
         }
     }
 
-    // --- Menu Item Operation Implementations ---
     private static async Task AddNewMenuItem(IMenuItemService menuItemService)
     {
         Console.WriteLine("\n--- Add New Menu Item ---");
@@ -177,7 +155,7 @@ public class Program
         }
 
         Console.Write("Enter Price: ");
-        int price; // Use decimal for currency
+        int price;
         while (!int.TryParse(Console.ReadLine(), out price) || price <= 0)
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -203,7 +181,7 @@ public class Program
         var menuItemCreateDto = new MenuItemCreateDto
         {
             Name = name,
-            Price = (int)price, // Assuming Price in DTO/Entity is int. If decimal, change here.
+            Price = price,
             Category = selectedCategory
         };
 
@@ -246,19 +224,19 @@ public class Program
         Console.WriteLine($"\nCurrent Details:");
         Console.WriteLine($"  ID: {existingItem.Id}");
         Console.WriteLine($"  Name: {existingItem.Name}");
-        Console.WriteLine($"  Price: {existingItem.Price:C}"); // Display as currency
+        Console.WriteLine($"  Price: {existingItem.Price:C}");
         Console.WriteLine($"  Category: {existingItem.Category}");
 
         Console.Write("\nEnter New Name (leave empty to keep current): ");
         string? newName = Console.ReadLine();
         if (string.IsNullOrWhiteSpace(newName))
         {
-            newName = existingItem.Name; // Keep existing name
+            newName = existingItem.Name;
         }
 
         Console.Write("Enter New Price (leave empty to keep current): ");
         string? newPriceStr = Console.ReadLine();
-        decimal newPrice = existingItem.Price; // Use decimal for consistency
+        decimal newPrice = existingItem.Price;
         if (!string.IsNullOrWhiteSpace(newPriceStr))
         {
             while (!decimal.TryParse(newPriceStr, out newPrice) || newPrice <= 0)
@@ -294,26 +272,16 @@ public class Program
         {
             Id = id,
             Name = newName,
-            Price = (int)newPrice, // Cast back to int if entity property is int
+            Price = (int)newPrice,
             Category = newCategory
         };
 
         try
         {
-            var repository = _serviceProvider.GetService<IRepository<MenuItem>>();
-            if (repository != null)
-            {
-                await repository.UpdateAsync(itemToUpdate.Id);
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Menu item updated successfully!");
-                Console.ResetColor();
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: MenuItem repository not loaded.");
-                Console.ResetColor();
-            }
+            await menuItemService.EditMenuItem(itemToUpdate);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Menu item updated successfully!");
+            Console.ResetColor();
         }
         catch (Exception ex)
         {
@@ -346,9 +314,8 @@ public class Program
 
         try
         {
-            // Create a minimal MenuItem entity with just the ID for deletion
             var menuItemEntity = new MenuItem { Id = itemToDelete.Id };
-            await menuItemService.DeleteMenuItem(menuItemEntity); // Assumes DeleteMenuItem takes an entity
+            await menuItemService.DeleteMenuItem(menuItemEntity);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Menu item deleted successfully!");
             Console.ResetColor();
@@ -431,7 +398,7 @@ public class Program
         var menuItems = await menuItemService.SearchByName(keyword);
         DisplayMenuItems(menuItems);
     }
-    // Helper method to display menu items in a formatted table
+
     private static void DisplayMenuItems(List<MenuItemReturnDto> menuItems)
     {
         if (menuItems == null || !menuItems.Any())
@@ -451,20 +418,9 @@ public class Program
             Console.WriteLine("{0,-5} {1,-25} {2,-15} {3,-10:C}", item.Id, item.Name, item.Category, item.Price);
         }
     }
-    // --- Order Operations ---
-    private static async Task HandleOrderOperations()
-    {
-        var orderService = _serviceProvider.GetService<IOrderService>();
-        var menuItemService = _serviceProvider.GetService<IMenuItemService>(); // Needed to display available menu items
-        if (orderService == null || menuItemService == null)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Error: Order services not loaded. Check application configuration.");
-            Console.ResetColor();
-            await Task.Delay(2000);
-            return;
-        }
 
+    private static async Task HandleOrderOperations(IOrderService orderService, IMenuItemService menuItemService)
+    {
         bool backToMainMenu = false;
         while (!backToMainMenu)
         {
@@ -530,7 +486,7 @@ public class Program
             }
         }
     }
-    // --- Order Operation Implementations ---
+
     private static async Task AddNewOrder(IOrderService orderService, IMenuItemService menuItemService)
     {
         Console.WriteLine("\n--- Add New Order ---");
@@ -642,9 +598,8 @@ public class Program
 
         try
         {
-            // Create a minimal Order entity with just the ID for deletion
             var orderEntity = new Order { Id = orderToDelete.Id };
-            await orderService.DeleteOrder(orderEntity); // Assumes DeleteOrder takes an entity
+            await orderService.DeleteOrder(orderEntity);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Order cancelled successfully!");
             Console.ResetColor();
@@ -686,8 +641,7 @@ public class Program
             Console.ResetColor();
         }
 
-        var orders =
-            await orderService.GetByDateRange(startDate, endDate.AddDays(1).AddTicks(-1)); // Include whole end day
+        var orders = await orderService.GetByDateRange(startDate, endDate.AddDays(1).AddTicks(-1));
         DisplayOrders(orders);
     }
 
@@ -706,106 +660,103 @@ public class Program
         Console.Write("Enter Maximum Amount: ");
         decimal maxAmount;
         while (!decimal.TryParse(Console.ReadLine(), out maxAmount) || maxAmount < minAmount)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("Error: Invalid amount! Please enter a number greater than or equal to minimum amount: ");
-            Console.ResetColor();
-        }
-
-        var orders = await orderService.GetByPriceRange(minAmount, maxAmount);
-        DisplayOrders(orders);
-    }
-
-    private static async Task ShowOrdersBySpecificDate(IOrderService orderService)
-    {
-        Console.WriteLine("\n--- Orders on a Specific Date ---");
-        Console.Write("Enter Date (YYYY-MM-DD): ");
-        DateTime date;
-        while (!DateTime.TryParse(Console.ReadLine(), out date))
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("Error: Invalid date format! Please enter in YYYY-MM-DD format: ");
-            Console.ResetColor();
-        }
-
-        var orders =
-            await orderService.GetByDateRange(date.Date, date.Date.AddDays(1).AddTicks(-1)); // To cover the whole day
-        DisplayOrders(orders);
-    }
-
-    private static async Task ShowOrderDetailsById(IOrderService orderService)
-    {
-        Console.WriteLine("\n--- Order Details (by ID) ---");
-        Console.Write("Enter Order ID: ");
-        int id;
-        while (!int.TryParse(Console.ReadLine(), out id) || id <= 0)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("Error: Invalid ID! Please enter a positive integer: ");
-            Console.ResetColor();
-        }
-
-        var order = await orderService.GetById(id);
-        if (order == null)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Info: Order with the given ID was not found.");
-            Console.ResetColor();
-            return;
-        }
-
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("\n--- Order Details ---");
-        Console.ResetColor();
-        Console.WriteLine($"  ID: {order.Id}");
-        Console.WriteLine($"  Date: {order.OrderDate:yyyy-MM-dd HH:mm:ss}");
-        Console.WriteLine(
-            $"  Total Amount: {order.TotalOrderPrice:C}"); // 'C' for currency, uses current culture's currency symbol
-        Console.WriteLine($"  Number of Items: {order.TotalOrderCount}");
-
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("\nOrder Items:");
-        Console.ResetColor();
-        if (order.OrderItems != null && order.OrderItems.Any())
-        {
-            Console.WriteLine("{0,-10} {1,-30} {2,-10} {3,-15}", "Item ID", "Name", "Quantity", "Amount");
-            Console.WriteLine("------------------------------------------------------------------");
-            foreach (var item in order.OrderItems)
             {
-                Console.WriteLine("{0,-10} {1,-30} {2,-10} {3,-15:C}", item.MenuItemId, item.MenuItemName ?? "Unknown",
-                    item.Quantity, item.TotalAmount);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Error: Invalid amount! Please enter a number greater than or equal to minimum amount: ");
+                Console.ResetColor();
+            }
+
+            var orders = await orderService.GetByPriceRange(minAmount, maxAmount);
+            DisplayOrders(orders);
+        }
+
+        private static async Task ShowOrdersBySpecificDate(IOrderService orderService)
+        {
+            Console.WriteLine("\n--- Orders on a Specific Date ---");
+            Console.Write("Enter Date (YYYY-MM-DD): ");
+            DateTime date;
+            while (!DateTime.TryParse(Console.ReadLine(), out date))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Error: Invalid date format! Please enter in YYYY-MM-DD format: ");
+                Console.ResetColor();
+            }
+
+            var orders = await orderService.GetByDateRange(date.Date, date.Date.AddDays(1).AddTicks(-1));
+            DisplayOrders(orders);
+        }
+
+        private static async Task ShowOrderDetailsById(IOrderService orderService)
+        {
+            Console.WriteLine("\n--- Order Details (by ID) ---");
+            Console.Write("Enter Order ID: ");
+            int id;
+            while (!int.TryParse(Console.ReadLine(), out id) || id <= 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Error: Invalid ID! Please enter a positive integer: ");
+                Console.ResetColor();
+            }
+
+            var order = await orderService.GetById(id);
+            if (order == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Info: Order with the given ID was not found.");
+                Console.ResetColor();
+                return;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n--- Order Details ---");
+            Console.ResetColor();
+            Console.WriteLine($"  ID: {order.Id}");
+            Console.WriteLine($"  Date: {order.OrderDate:yyyy-MM-dd HH:mm:ss}");
+            Console.WriteLine($"  Total Amount: {order.TotalOrderPrice:C}");
+            Console.WriteLine($"  Number of Items: {order.TotalOrderCount}");
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nOrder Items:");
+            Console.ResetColor();
+            if (order.OrderItems != null && order.OrderItems.Any())
+            {
+                Console.WriteLine("{0,-10} {1,-30} {2,-10} {3,-15}", "Item ID", "Name", "Quantity", "Amount");
+                Console.WriteLine("------------------------------------------------------------------");
+                foreach (var item in order.OrderItems)
+                {
+                    Console.WriteLine("{0,-10} {1,-30} {2,-10} {3,-15:C}", item.MenuItemId, item.MenuItemName ?? "Unknown",
+                        item.Quantity, item.TotalAmount);
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Info: No items found for this order.");
+                Console.ResetColor();
             }
         }
-        else
+
+        private static void DisplayOrders(List<OrderReturnDto> orders)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Info: No items found for this order.");
+            if (orders == null || !orders.Any())
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Info: No orders found.");
+                Console.ResetColor();
+                return;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n{0,-5} {1,-25} {2,-20} {3,-15}", "ID", "Date", "Total Amount", "Item Count");
+            Console.WriteLine("----------------------------------------------------------------------");
             Console.ResetColor();
+            foreach (var order in orders)
+            {
+                Console.WriteLine("{0,-5} {1,-25:yyyy-MM-dd HH:mm} {2,-20:C} {3,-15}",
+                    order.Id,
+                    order.OrderDate,
+                    order.TotalOrderPrice,
+                    order.TotalOrderCount);
+            }
         }
     }
-
-    // Helper method to display orders in a formatted table
-    private static void DisplayOrders(List<OrderReturnDto> orders)
-    {
-        if (orders == null || !orders.Any())
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Info: No orders found.");
-            Console.ResetColor();
-            return;
-        }
-
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("\n{0,-5} {1,-25} {2,-20} {3,-15}", "ID", "Date", "Total Amount", "Item Count");
-        Console.WriteLine("----------------------------------------------------------------------");
-        Console.ResetColor();
-        foreach (var order in orders)
-        {
-            Console.WriteLine("{0,-5} {1,-25:yyyy-MM-dd HH:mm} {2,-20:C} {3,-15}",
-                order.Id,
-                order.OrderDate,
-                order.TotalOrderPrice,
-                order.TotalOrderCount);
-        }
-    }
-}

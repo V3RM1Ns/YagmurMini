@@ -1,3 +1,4 @@
+// Orm.BL/Services/Concretes/OrderService.cs
 using Microsoft.EntityFrameworkCore;
 using Orm.BL.Dtos.OrderDtos;
 using Orm.BL.Dtos.OrderItemDtos;
@@ -5,6 +6,7 @@ using Orm.BL.Profiles;
 using Orm.BL.Services.Interfaces;
 using Orm.Core.Entities;
 using Orm.DAL.DataStorage.Contexts;
+using Orm.DAL.Repositories.Concretes;
 using Orm.DAL.Repositories.Interfaces;
 
 namespace Orm.BL.Services.Concretes;
@@ -15,18 +17,16 @@ public class OrderService : IOrderService
     private readonly IRepository<Order> _orderRepository;
     private readonly IRepository<MenuItem> _menuItemRepository;
 
-    public OrderService(AppDbContex context, IRepository<Order> orderRepository,
-        IRepository<MenuItem> menuItemRepository)
+    public OrderService(AppDbContex context)
     {
         _context = context;
-        _orderRepository = orderRepository;
-        _menuItemRepository = menuItemRepository;
+        _orderRepository = new Repository<Order>(_context);
+        _menuItemRepository = new Repository<MenuItem>(_context);
     }
 
     public async Task AddOrder(OrderCreateDto orderCreateDto)
     {
         var order = OrderProfile.OrderCreateToOrder(orderCreateDto);
-
 
         foreach (var orderItem in order.OrderItems)
         {
@@ -44,10 +44,8 @@ public class OrderService : IOrderService
         await _orderRepository.AddAsync(order);
     }
 
-    public async Task UpdateOrder(OrderCreateDto orderCreateDto)
+    public async Task UpdateOrder(Order order)
     {
-        var order = OrderProfile.OrderCreateToOrder(orderCreateDto);
-
         foreach (var orderItem in order.OrderItems)
         {
             var menuItem = await _menuItemRepository.GetByIdAsync(orderItem.MenuItemId);
@@ -55,24 +53,19 @@ public class OrderService : IOrderService
             {
                 throw new Exception($"MenuItem with ID {orderItem.MenuItemId} not found.");
             }
-
             orderItem.TotalAmount = menuItem.Price * orderItem.Quantity;
         }
-
         order.Count = order.OrderItems.Count;
-
-        await _orderRepository.UpdateAsync(order.Id);
+        await _orderRepository.UpdateAsync(order);
     }
 
     public async Task DeleteOrder(Order order)
     {
         await _orderRepository.DeleteAsync(order.Id);
-        _context.SaveChanges();
     }
 
     public async Task<List<OrderReturnDto>> GetByPriceRange(decimal min, decimal max)
     {
-
         var orders = await _context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)

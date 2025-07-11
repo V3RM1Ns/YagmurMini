@@ -1,7 +1,11 @@
+// Orm.DAL/Repositories/Concretes/Repository.cs
 using Microsoft.EntityFrameworkCore;
 using Orm.Core.Entities.Common;
 using Orm.DAL.DataStorage.Contexts;
 using Orm.DAL.Repositories.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Orm.DAL.Repositories.Concretes;
 
@@ -10,8 +14,7 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEnti
     private readonly AppDbContex _context;
     public DbSet<TEntity> Table { get; set; }
 
-
-    public Repository(AppDbContex context)
+    public Repository(AppDbContex context) // Constructor doğrudan AppDbContex alacak şekilde değiştirildi
     {
         _context = context;
         Table = _context.Set<TEntity>();
@@ -25,12 +28,24 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEnti
 
     public async Task DeleteAsync(int id)
     {
-        _context.Remove(await Table.FindAsync(id));
+        var entityToDelete = await Table.FindAsync(id);
+        if (entityToDelete != null)
+        {
+            Table.Remove(entityToDelete);
+            await _context.SaveChangesAsync();
+        }
     }
 
-    public async Task UpdateAsync(int id)
+    public async Task UpdateAsync(TEntity entity) // Parametre doğrudan TEntity entity'si olarak değiştirildi
     {
-        _context.Update(await Table.FindAsync(id));
+        var existingEntity = await Table.FindAsync(entity.Id);
+        if (existingEntity == null)
+        {
+            throw new KeyNotFoundException($"Entity with ID {entity.Id} not found for update.");
+        }
+
+        _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+        _context.Entry(existingEntity).State = EntityState.Modified;
         await _context.SaveChangesAsync();
     }
 
