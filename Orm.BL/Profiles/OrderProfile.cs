@@ -1,55 +1,34 @@
+// Orm.BL/Profiles/OrderProfile.cs
+using System.Linq;
 using Orm.BL.Dtos.OrderDtos;
 using Orm.BL.Dtos.OrderItemDtos;
 using Orm.Core.Entities;
 
 namespace Orm.BL.Profiles;
 
-public class OrderProfile
+public static class OrderProfile
 {
-    public static Order OrderCreateToOrder(OrderCreateDto orderCreateDto)
+    public static Order OrderCreateToOrder(OrderCreateDto dto)
     {
-        var order = new Order
+        return new Order
         {
-            OrderDate = orderCreateDto.OrderDate,
-            OrderItems = new List<OrderItem>()
+            OrderDate = dto.OrderDate,
+            TableId = dto.TableId, // Mapping TableId
+            OrderItems = dto.OrderItems.Select(OrderItemProfile.OrderItemCreateToOrderItem).ToList()
         };
-
-        // Map OrderItems
-        foreach (var itemDto in orderCreateDto.OrderItems)
-        {
-            order.OrderItems.Add(new OrderItem
-            {
-                MenuItemId = itemDto.MenuItemId,
-                Quantity = itemDto.Quantity,
-            });
-        }
-        return order;
     }
 
-    public static OrderReturnDto OrderToOrderReturnDto(Order order)
+    public static OrderReturnDto OrderToOrderReturnDto(Order entity)
     {
         return new OrderReturnDto
         {
-            Id = order.Id,
-            OrderDate = order.OrderDate,
-            
-            TotalOrderCount = order.OrderItems?.Count ?? 0,
-            TotalOrderPrice = order.OrderItems?.Sum(oi => oi.TotalAmount) ?? 0,
-            OrderItems = order.OrderItems?
-                .Select(oi => OrderItemToOrderItemReturnDto(oi))
-                .ToList() ?? new List<OrderItemReturnDto>()
-        };
-    }
-
-    public static OrderItemReturnDto OrderItemToOrderItemReturnDto(OrderItem orderItem)
-    {
-        return new OrderItemReturnDto
-        {
-            Id = orderItem.Id,
-            MenuItemId = orderItem.MenuItemId,
-            MenuItemName = orderItem.MenuItem?.Name,
-            Quantity = orderItem.Quantity,
-            TotalAmount = orderItem.TotalAmount
+            Id = entity.Id,
+            OrderDate = entity.OrderDate,
+            TotalOrderPrice = entity.OrderItems.Sum(oi => oi.TotalAmount),
+            TotalOrderCount = entity.OrderItems.Sum(oi => oi.Quantity),
+            TableId = entity.TableId, // Mapping TableId
+            TableNo = entity.Table?.No, // Mapping TableNo (if Table is included)
+            OrderItems = entity.OrderItems.Select(OrderItemProfile.OrderItemToOrderItemReturnDto).ToList()
         };
     }
 }

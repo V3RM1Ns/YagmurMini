@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Orm.BL.Dtos.OrderDtos;
 
-public class OrderReturnDto
+public class OrderItemReturnDto
 {
     public int Id { get; set; }
     public DateTime OrderDate { get; set; }
