@@ -1,9 +1,4 @@
-﻿// Program.cs
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿
 using Orm.Core.Entities;
 using Orm.BL.Dtos.MenuItemDtos;
 using Orm.BL.Dtos.OrderDtos;
@@ -11,8 +6,6 @@ using Orm.BL.Dtos.OrderItemDtos;
 using Orm.BL.Services.Concretes;
 using Orm.BL.Services.Interfaces;
 using Orm.DAL.DataStorage.Contexts;
-using Orm.DAL.Repositories.Concretes;
-using Orm.DAL.Repositories.Interfaces;
 
 public class Program
 {
