@@ -64,27 +64,6 @@ Bash
 dotnet run
 Tətbiq konsol pəncərəsində işə düşəcək.
 
-💡 Necə İstifadə Etməli
-Tətbiq işə düşdükdən sonra sizi sadə bir menyu qarşılayacaq:
-
-╔══════════════════════════════════════════╗
-║               ƏSAS MENYU                 ║
-╠══════════════════════════════════════════╣
-║ 1. Menyu Elementləri üzrə əməliyyatlar    ║
-║ 2. Sifarişlər üzrə əməliyyatlar           ║
-║ 3. Masalar üzrə əməliyyatlar              ║
-║ 0. Sistemdən çıxış                        ║
-╚══════════════════════════════════════════╝
-İstədiyiniz seçimin nömrəsini daxil edin və Enter düyməsini sıxın.
-
-Hər bir əməliyyat üçün ekrandakı təlimatlara əməl edin. Tətbiq sizə lazım olan məlumatları (ID, ad, qiymət, miqdar, tarix) daxil etməyinizdə bələdçilik edəcək.
-
-Yanlış giriş zamanı səhv idarəetməsi mövcuddur.
-
-Əksər əməliyyatlardan sonra istənilən düyməni sıxaraq alt-menyaya qayıda bilərsiniz.
-
-Əvvəlki menyuya qayıtmaq üçün alt-menyularda 0 daxil edin.
-
 📁 Layihə Strukturu
 Bu layihə, kodun oxunaqlılığını və baxımını təmin etmək üçün qatmanlı arxitekturaya riayət edir:
 
