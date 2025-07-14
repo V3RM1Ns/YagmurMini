@@ -1,81 +1,71 @@
 Restoran Sifariş İdarəetmə Sistemi (ORM) Konsol Tətbiqi
-Bu, restoran mühitində menyu elementlərini, sifarişləri və masaları idarə etmək üçün nəzərdə tutulmuş konsol əsaslı bir tətbiqdir. Verilənlərin saxlanması üçün Entity Framework Core-dan istifadə edərək, verilənlər bazası ilə möhkəm qarşılıqlı əlaqə təmin edir.
+Bu, restoran mühitində menyu elementlərini, sifarişləri və masaları idarə etmək üçün nəzərdə tutulmuş sadə, lakin effektiv konsol əsaslı bir tətbiqdir. Entity Framework Core-dan istifadə edərək verilənlərin saxlanmasını və idarə olunmasını asanlaşdırır.
 
-Xüsusiyyətlər
-Tətbiq aşağıdakı funksionallığı təklif edir:
+🌟 Əsas Xüsusiyyətlər
+Tətbiq istifadəçilərə aşağıdakı əsas funksionallığı təklif edir:
 
-Menyu Elementləri Əməliyyatları
+🍽️ Menyu Elementləri Əməliyyatları
 
-Yeni Menyu Elementi Əlavə Et: Menyuya ad, qiymət və kateqoriya ilə yeni yeməklər və ya içkilər əlavə edin.
+Əlavə Et: Menyuya yeni yemək və içkilər əlavə edin (ad, qiymət, kateqoriya ilə).
 
-Mövcud Menyu Elementini Redaktə Et: Mövcud menyu elementinin təfərrüatlarını (ad, qiymət, kateqoriya) yeniləyin.
+Redaktə Et: Mövcud menyu elementlərinin detallarını (ad, qiymət, kateqoriya) yeniləyin.
 
-Menyu Elementini Sil: Sistemdən bir menyu elementini silin.
+Sil: Artıq təklif olunmayan menyu elementlərini sistemdən çıxarın.
 
-Bütün Menyu Elementlərini Göstər: Bütün mövcud menyu elementlərinin ətraflı siyahısını göstərin.
+Göstər: Bütün menyu elementlərini, kateqoriyaya görə, qiymət aralığına görə göstərin və ya adına görə axtarın.
 
-Kateqoriyaya Görə Menyu Elementlərini Göstər: Menyu elementlərini kateqoriyalarına görə filtrləyin və göstərin (məsələn, Qəlyanaltılar, Əsas yeməklər, İçkilər).
+📝 Sifariş Əməliyyatları
 
-Qiymət Aralığına Görə Menyu Elementlərini Göstər: Müəyyən bir qiymət aralığındakı menyu elementlərini tapın.
+Yeni Sifariş Yarat: Birdən çox menyu elementi və onların miqdarını seçməklə yeni sifarişlər daxil edin. Sifarişlər masalara təyin oluna bilər və ya paket servis kimi qeyd edilə bilər.
 
-Adına Görə Menyu Elementlərini Axtar: Menyu elementlərini adlarındakı bir açar sözdən istifadə edərək axtarın.
+Ləğv Et: Yanlış və ya ləğv edilmiş sifarişləri sistemdən silin.
 
-Sifariş Əməliyyatları
+İdarə Et: Bütün sifarişləri göstərin, tarixə, məbləğə görə filtrləyin və ya sifariş ID-sinə görə ətraflı məlumat əldə edin.
 
-Yeni Sifariş Əlavə Et: Birdən çox menyu elementi və miqdar seçiminə imkan verən yeni bir müştəri sifarişi yaradın. Sifarişlər müəyyən bir masaya təyin edilə bilər və ya paket servis kimi qeyd oluna bilər.
+🛋️ Masa Əməliyyatları
 
-Sifarişi Ləğv Et: Sistemdən mövcud bir sifarişi silin.
+Gələcək İnkişaf: Bu bölmə hazırda aktiv deyil və gələcək versiyalarda masaların idarə edilməsi (status, tutum və s.) üçün genişləndiriləcək.
 
-Bütün Sifarişləri Göstər: Bütün qeydə alınmış sifarişlərin siyahısını göstərin.
-
-Tarix Aralığına Görə Sifarişləri Göstər: Müəyyən bir tarix aralığında verilən sifarişləri filtrləyin və göstərin.
-
-Məbləğ Aralığına Görə Sifarişləri Göstər: Verilmiş bir aralıqdakı ümumi məbləği olan sifarişləri tapın.
-
-Müəyyən Bir Tarixdəki Sifarişləri Göstər: Müəyyən bir tarixdə verilən bütün sifarişləri göstərin.
-
-ID-yə Görə Sifariş Təfərrüatlarını Göstər: Müəyyən bir sifariş haqqında, sifariş edilmiş bütün elementlər daxil olmaqla ətraflı məlumat alın.
-
-Masa Əməliyyatları
-
-Tezliklə Gələcək: Əsas menyu "Masalar üzrə əməliyyatlar aparın" seçimini əhatə etsə də, təqdim olunan kod parçasında HandleTableOperations metodunun tətbiqi yoxdur. Bu funksionallıq gələcək inkişaf üçün nəzərdə tutulub.
-
-İstifadə Olunan Texnologiyalar
+🛠️ İstifadə Olunan Texnologiyalar
 C#: Tətbiqin əsas proqramlaşdırma dili.
 
-.NET: Konsol tətbiqini qurmaq üçün istifadə olunan freymvork.
+.NET: Konsol tətbiqini qurmaq üçün istifadə olunan güclü freymvork.
 
-Microsoft.EntityFrameworkCore: Verilənlər bazası ilə qarşılıqlı əlaqəni sadələşdirən bir ORM freymvorku.
+Microsoft.EntityFrameworkCore: Verilənlər bazası ilə rahat və obyekt-yönümlü qarşılıqlı əlaqə üçün ORM freymvorku.
 
-SQLite (Ehtimal ki): AppDbContext-ə əsaslanaraq, SQLite-ın yüngül, fayl əsaslı bir verilənlər bazası həlli təklif edən verilənlər bazası provayderi kimi istifadə olunduğu ehtimal olunur. (Bu fərziyyə, AppDbContext-in tipik olaraq müəyyən bir provayderlə konfiqurasiya edilməsi səbəbindən irəli sürülür).
+SQLite (ehtimal ki): Yüngül, fayl əsaslı verilənlər bazası həlli. (AppDbContext konfiqurasiyasına əsasən ehtimal edilir.)
 
-Quraşdırma və Yükləmə
-Bu tətbiqi işə salmaq üçün aşağıdakı addımları izləyin:
+🚀 Quraşdırma və İşə Salma
+Tətbiqi lokal maşınınızda işə salmaq üçün aşağıdakı addımları izləyin:
 
-Depositoriyanı Klonlayın (və ya kodu kopyalayın):
-Əgər bu kod daha böyük bir layihənin hissəsidirsə, bütün depositoriyanı klonlayın. Əks halda, bütün əlaqədar faylların (DTO-lar, servislər, kontekstlər, varlıqlar) düzgün layihə strukturunda olduğundan əmin olun.
+Depositoriyanı Klonlayın:
+
+Bash
+git clone [repo-ünvanı]
+cd [repo-qovluğu]
+Qeyd: Əgər layihəni klonlamırsınızsa, bütün əlaqədar faylların (Entitylər, DTO-lar, Servislər, Contextlər) düzgün qovluq strukturunda olduğundan əmin olun.
 
 NuGet Paketlərini Bərpa Edin:
-Terminalda layihə qovluğuna keçin və aşağıdakını işə salın:
 
 Bash
 dotnet restore
-Bu, Microsoft.EntityFrameworkCore və onun xüsusi verilənlər bazası provayderi (məsələn, Microsoft.EntityFrameworkCore.Sqlite) daxil olmaqla bütün lazımi NuGet paketlərini endirəcək.
+Bu əmr bütün lazımi paketləri (məsələn, Entity Framework Core provayderləri) endirəcək.
 
-Verilənlər Bazası Miqrasiyaları (əgər tətbiq olunursa):
-Əgər AppDbContext-iniz və Entity Framework Core qurulumunuz miqrasiyaları əhatə edirsə, verilənlər bazası sxeminizi yaratmaq və ya yeniləmək üçün onları tətbiq etməlisiniz.
+Verilənlər Bazası Miqrasiyalarını Tətbiq Edin (əgər mövcuddursa):
 
 Bash
 dotnet ef database update
-Qeyd: dotnet ef əmrlərini işə salmaq üçün Microsoft.EntityFrameworkCore.Tools paketinin DotNetCliToolReference olaraq və ya qlobal olaraq quraşdırıldığından əmin olun.
+Bu, verilənlər bazası sxeminizi yaradacaq və ya yeniləyəcək.
+Qeyd: dotnet ef əmrlərini işə salmaq üçün Microsoft.EntityFrameworkCore.Tools paketinin qlobal olaraq və ya layihəyə DotNetCliToolReference kimi əlavə edildiyindən əmin olun.
 
 Tətbiqi Çalışdırın:
-Tətbiqi birbaşa IDE-dən (Visual Studio kimi) və ya terminaldan işə sala bilərsiniz:
 
 Bash
 dotnet run
-Necə İstifadə Etməli
-Tətbiq işə düşəndə sizə əsas menyu təqdim olunacaq:
+Tətbiq konsol pəncərəsində işə düşəcək.
+
+💡 Necə İstifadə Etməli
+Tətbiq işə düşdükdən sonra sizi sadə bir menyu qarşılayacaq:
 
 ╔══════════════════════════════════════════╗
 ║               ƏSAS MENYU                 ║
@@ -85,38 +75,38 @@ Tətbiq işə düşəndə sizə əsas menyu təqdim olunacaq:
 ║ 3. Masalar üzrə əməliyyatlar              ║
 ║ 0. Sistemdən çıxış                        ║
 ╚══════════════════════════════════════════╝
-Müvafiq nömrəni daxil edərək (1, 2, 3 və ya 0) və Enter düyməsini sıxaraq bir seçim edin.
+İstədiyiniz seçimin nömrəsini daxil edin və Enter düyməsini sıxın.
 
-Hər bir əməliyyat üçün ekrandakı təlimatlara əməl edin. Tətbiq sizə ID-lər, adlar, qiymətlər, miqdarlar və tarixlər kimi zəruri məlumatları daxil etməkdə bələdçilik edəcək.
+Hər bir əməliyyat üçün ekrandakı təlimatlara əməl edin. Tətbiq sizə lazım olan məlumatları (ID, ad, qiymət, miqdar, tarix) daxil etməyinizdə bələdçilik edəcək.
 
-Yanlış məlumat daxil etdiyiniz təqdirdə sizə bələdçilik etmək üçün səhv idarəetməsi mövcuddur.
+Yanlış giriş zamanı səhv idarəetməsi mövcuddur.
 
-Əksər əməliyyatlardan sonra alt-menyaya qayıtmaq üçün istənilən düyməni basın.
+Əksər əməliyyatlardan sonra istənilən düyməni sıxaraq alt-menyaya qayıda bilərsiniz.
 
-Əvvəlki menyuya qayıtmaq üçün istənilən alt-menyuya "0" daxil edin.
+Əvvəlki menyuya qayıtmaq üçün alt-menyularda 0 daxil edin.
 
-Layihə Strukturu (Fərz Edilən)
-using bəyanatlarına əsasən, layihə böyük ehtimalla çoxqatlı arxitekturaya malikdir:
+📁 Layihə Strukturu
+Bu layihə, kodun oxunaqlılığını və baxımını təmin etmək üçün qatmanlı arxitekturaya riayət edir:
 
-Orm.Core.Entities: Əsas varlıq siniflərini (məsələn, MenuItem, Order, OrderItem, Table, Category) ehtiva edir.
+Orm.Core.Entities: Verilənlər bazasındakı cədvəllərə uyğun gələn əsas varlıq sinifləri (məsələn, MenuItem, Order, Table).
 
-Orm.BL.Dtos: Müxtəlif varlıqlar üçün məlumat girişi və çıxışı üçün istifadə olunan Data Transfer Obyektlərini (DTOs) saxlayır (məsələn, MenuItemCreateDto, OrderReturnDto).
+Orm.BL.Dtos: Verilənlərin tətbiqin qatları arasında ötürülməsi üçün istifadə olunan Data Transfer Obyektləri (DTOs) (məsələn, MenuItemCreateDto, OrderReturnDto).
 
-Orm.BL.Services.Interfaces: Biznes məntiq xidmətləri üçün interfeysləri müəyyən edir (məsələn, IMenuItemService, IOrderService, ITableService).
+Orm.BL.Services.Interfaces: Biznes məntiq xidmətləri üçün müqavilələri (interfeysləri) müəyyən edir (məsələn, IMenuItemService).
 
-Orm.BL.Services.Concretes: Biznes məntiq xidmətlərinin konkret tətbiqlərini təmin edir.
+Orm.BL.Services.Concretes: Yuxarıdakı interfeyslərin konkret tətbiqlərini ehtiva edir, iş məntiqini və verilənlər bazası əməliyyatlarını idarə edir.
 
-Orm.DAL.DataStorage.Contexts: Entity Framework Core istifadə edərək verilənlər bazası ilə qarşılıqlı əlaqə qurmaqdan məsul olan AppDbContext sinfini ehtiva edir.
+Orm.DAL.DataStorage.Contexts: Entity Framework Core istifadə edərək verilənlər bazası ilə əlaqəni quran AppDbContext sinfini ehtiva edir.
 
-Program.cs: Konsol tətbiqinin giriş nöqtəsi olub, istifadəçi qarşılıqlı əlaqəsini idarə edir və biznes məntiq xidmətlərinə çağırışları təşkil edir.
+Program.cs: Tətbiqin giriş nöqtəsi olub, istifadəçi qarşılıqlı əlaqəsini təmin edir və biznes məntiqini təşkil edir.
 
-Gələcək Təkmilləşdirmələr
-Masaların idarə edilməsinə imkan vermək üçün HandleTableOperations metodunu tətbiq edin.
+📈 Gələcək Təkmilləşdirmələr
+Masaların idarə edilməsi (status, tutum və s.) üçün HandleTableOperations metodunun tam tətbiqi.
 
-Daha möhkəm giriş yoxlaması və səhv idarəetməsi əlavə edin.
+Daha möhkəm giriş yoxlaması və istifadəçi bildirişləri.
 
-İstifadəçi identifikasiyası və icazələri tətbiq edin.
+Genişləndirilmiş istifadəçi autentifikasiyası və icazə sistemi.
 
-Daha yaxşı istifadəçi təcrübəsi üçün daha qabaqcıl bir UI freymvorku (məsələn, WPF, ASP.NET Core MVC/Blazor) nəzərdən keçirin.
+Daha yaxşı istifadəçi təcrübəsi üçün qrafik interfeysə keçid (məsələn, WPF, ASP.NET Core Blazor).
 
-Satışlar, populyar elementlər və s. üçün hesabat funksiyaları əlavə edin.
+Satış hesabatları, populyar məhsullar və digər analitik funksiyaların əlavə edilməsi.
